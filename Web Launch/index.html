@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Z Media Digital - Launch</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="content">
+        <img src="ZMedia Logo Guidelines-07.png" alt="Z Media Digital Logo" class="logo">
+        <button id="launch-button" class="launch-button" aria-label="Launch Z Media Digital">Launch
+            Zmediadigital.com</button>
+        <div id="countdown" class="countdown">3</div>
+    </div>
+
+    <!-- Include GSAP library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.11.1/gsap.min.js"></script>
+    <!-- Include Canvas Confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+    <!-- Include Howler.js for sound effects -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+
+    <script type="module">
+        // Initialize Confetti
+        const initConfetti = () => {
+            const confettiCanvas = document.createElement('canvas');
+            Object.assign(confettiCanvas.style, {
+                position: 'fixed',
+                top: '0',
+                left: '0',
+                width: '100%',
+                height: '100%',
+                pointerEvents: 'none',
+                zIndex: 10
+            });
+            document.body.appendChild(confettiCanvas);
+
+            return window.confetti.create(confettiCanvas, {
+                resize: true,
+                useWorker: true
+            });
+        };
+
+        const confetti = initConfetti();
+
+        // Sound effect
+        const soundEffect = new Howl({
+            src: ['path/to/launch-sound.mp3'], // Replace with your sound file
+            volume: 0.5
+        });
+
+        // Fullscreen Confetti
+        const triggerFullScreenConfetti = () => {
+            confetti({
+                particleCount: 500,
+                angle: 90,
+                spread: 120,
+                origin: { x: 0.5, y: 0.5 },
+                colors: ['#ff0', '#0f0', '#00f', '#f00', '#0ff', '#f0f'],
+                scalar: 1.2,
+                startVelocity: 60,
+                gravity: 0.7,
+                drift: 0.3,
+                shapes: ['circle', 'square', 'triangle'],
+                disableForReducedMotion: true
+            });
+        };
+
+        // Countdown Function
+        const startCountdown = () => {
+            const countdownElement = document.getElementById('countdown');
+            countdownElement.style.display = 'block';
+
+            let timeLeft = 3;
+
+            const updateCountdown = () => {
+                countdownElement.textContent = timeLeft;
+                countdownElement.classList.add('countdown-animation');
+
+                if (timeLeft > 0) {
+                    timeLeft -= 1;
+                    setTimeout(() => {
+                        countdownElement.classList.remove('countdown-animation');
+                        setTimeout(updateCountdown, 500); // Update countdown every 0.5 seconds
+                    }, 500); // Display each number for 0.5 seconds
+                } else {
+                    setTimeout(() => {
+                        countdownElement.style.display = 'none';
+                        window.location.href = 'https://zmediadigital.com/';
+                    }, 500); // Short delay before redirect
+                }
+            };
+
+            updateCountdown();
+        };
+
+        // Launch Animation
+        const triggerLaunchAnimation = async () => {
+            // Play sound effect
+            soundEffect.play();
+
+            // Animate button scale and opacity
+            gsap.to('#launch-button', {
+                scale: 0.1,
+                opacity: 0,
+                duration: 1,
+                ease: 'power4.out'
+            });
+
+            // Sequential animations
+            await new Promise(resolve => setTimeout(resolve, 300));
+            triggerFullScreenConfetti();
+
+            // Add a shake effect to the button before hiding it
+            gsap.fromTo('#launch-button', {
+                x: 0,
+                rotation: 0
+            }, {
+                x: 20,
+                rotation: 10,
+                repeat: 3,
+                yoyo: true,
+                duration: 0.2,
+                ease: 'back.inOut'
+            });
+
+            // Start countdown before redirecting
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            startCountdown();
+        };
+
+        // Event Listener
+        document.getElementById('launch-button').addEventListener('click', triggerLaunchAnimation);
+
+        // Event Listener for Space Key Press
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Space') {
+                event.preventDefault(); // Prevent default spacebar scroll behavior
+                document.getElementById('launch-button').click();
+            }
+        });
+    </script>
+
+</body>
+
+</html>
